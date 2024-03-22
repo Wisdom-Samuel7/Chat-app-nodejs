@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHAT-APP</title>
+</head>
+<style>
+    *{
+        margin: 0;
+        padding: 0;
+    }
+    body{
+        background: #000;
+    }
+    form{
+        width: 100%;
+        height: 8em;
+        background: transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .6em;
+       flex-direction: column;
+
+    }
+    input,button{
+        padding: .8em .9em;
+        border: none;
+        border-radius: .6em;
+        font-weight: bolder;
+    }
+    input:focus{
+        border: 1px solid white;
+
+    }
+    .info{
+        width: 50%;
+
+    }
+    .box{
+      display: flex;
+      /* justify-content: center; */
+      gap: .5em;
+      align-items: center;
+      flex-direction: column;
+      margin: .3em;
+      background: rgba(250,250,250,.2);
+      width: 80vw;
+      height: 60vh;
+      margin: .4em auto;
+      border-radius: .4em;
+      padding: 1em 0;
+      overflow-y: scroll;
+    }
+    .messagebox{
+        background: hotpink;
+        width: 70%;
+        padding: 1em;
+        border-radius: 1em;
+        font-weight: bolder;
+        color: #fff;
+    }
+    main{
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1em;
+    }
+  button{
+    font-weight: bolder;
+    color: #fff;
+  }
+</style>
+<body>
+
+    <h1 style="text-align: center;font-family: monospace;color: darkslateblue;margin: .4em 0em;font-size: 3em;"> Team chat </h1>
+    <h1 class="id" style="text-align: center;font-family: monospace;color: gray;font-size: small;">  </h1>
+   
+
+    <form> 
+      <main>
+        <input class="info" type="text" placeholder="Message">
+        <button class="sbt" style="background: crimson;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#fff" class="bi bi-send" viewBox="0 0 16 16">
+              <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z"/>
+            </svg>
+        </button>
+      </main>
+      <main>
+        <input class="room" type="text" placeholder="Room id">
+        <button class="join-room" style="background: crimson;">Join group with id</button>
+      </main>
+    </form>
+
+    <div class="box"> </div>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+
+     const socket = io();
+  
+     //MESSAGE BOX
+    const form = document.querySelector("form")
+    const info = document.querySelector(".info")
+    const sbt = document.querySelector(".sbt")
+    const box = document.querySelector(".box")
+
+    //SOCKET ID
+    const id = document.querySelector(".id")
+
+//ROOM BOX
+    const room = document.querySelector(".room")
+    const jroom = document.querySelector(".join-room")
+    const btn = document.querySelector("button")
+
+  //  const userId = document.querySelector(".id")
+      socket.on("connect",()=>{
+         id.innerHTML = `id : ${socket.id}`
+      })
+//  console.log(socket.id)
+//   //  userId.innerHTML = 
+//   if(info.value===""){
+//       sbt.style.display = "none"
+
+//    }else{
+//     sbt.style.display = "block"
+//    }
+
+
+jroom.onclick =(e)=>{
+    e.preventDefault()
+     var specific_room = room.value
+      socket.emit("join-room",specific_room)
+  }
+
+    sbt.addEventListener("click",(e)=>{
+        e.preventDefault()
+       MessageTransport(info.value,room.value)
+    })
+
+
+    function MessageTransport(messagefrom_Client,room){
+      // alert(room)
+        socket.emit("message",messagefrom_Client,room)
+
+        const message_Box = document.createElement("div")
+
+         message_Box.setAttribute("class","messagebox")
+
+         if(messagefrom_Client!=""){
+
+          message_Box.innerHTML = messagefrom_Client
+
+         box.append(message_Box)
+
+         }else{
+
+         }
+    }
+
+    socket.on("server_return",(server_response)=>{
+        Server_Rendering(server_response)
+    })
+
+   function Server_Rendering(messageresponsefrom_Server){
+      
+    const message_Box = document.createElement("div")
+         message_Box.setAttribute("class","messagebox")
+          message_Box.innerHTML = messageresponsefrom_Server
+         box.append(message_Box)
+   }
+
+   
+
+</script>
+    
+</body>
+</html>
